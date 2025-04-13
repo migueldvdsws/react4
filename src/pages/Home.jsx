@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
+import { useCart } from "../context/CartContext"; // 👈 Importar el contexto
 
 const Home = () => {
   const [pizzas, setPizzas] = useState([]);
+  const { addToCart } = useCart(); // 👈 Usar la función addToCart del contexto
 
   useEffect(() => {
     fetch("http://localhost:5000/api/pizzas")
@@ -21,6 +23,8 @@ const Home = () => {
             <img src={pizza.img} alt={pizza.name} width={200} />
             <p><strong>Ingredientes:</strong> {pizza.ingredients.join(", ")}</p>
             <p><strong>Descripción:</strong> {pizza.desc}</p>
+            {/* 👇 Botón para añadir al carrito */}
+            <button onClick={() => addToCart(pizza)}>Añadir al carrito 🛒</button>
           </div>
         ))}
       </div>
