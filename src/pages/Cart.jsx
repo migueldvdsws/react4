@@ -1,8 +1,11 @@
-import React from 'react';
+
+import React, { useContext } from 'react';
 import { useCart } from "../context/CartContext";
+import { UserContext } from "../context/UserContext"; // 👈 importar el contexto de usuario
 
 const Cart = () => {
   const { cart, total, removeFromCart } = useCart();
+  const { token } = useContext(UserContext); // 👈 obtener el token
 
   return (
     <div>
@@ -21,6 +24,11 @@ const Cart = () => {
             ))}
           </ul>
           <h3>Total: ${total.toLocaleString()}</h3>
+
+          {/* ✅ Botón Pagar, deshabilitado si token es false */}
+          <button disabled={!token}>
+            {token ? "Pagar" : "Inicia sesión para pagar"}
+          </button>
         </div>
       )}
     </div>

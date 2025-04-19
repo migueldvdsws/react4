@@ -1,32 +1,41 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
-import "bootstrap/dist/css/bootstrap.min.css";
+import { useUser } from "../context/UserContext"; // 👈 importar el hook
 import Register from "./Register";
 import Login from "./Login";
+import "bootstrap/dist/css/bootstrap.min.css";
 
-const Navbar = ({ token, setToken }) => {
+const Navbar = () => {
   const { cart, total } = useCart();
   const navigate = useNavigate();
 
+  const { token, login, logout } = useUser(); // 👈 usar login en lugar de setToken
+
   const [showRegister, setShowRegister] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
-  const [showCartDetails, setShowCartDetails] = useState(false); // 👈 para mostrar resumen carrito
+
+  const [showCartDetails, setShowCartDetails] = useState(false);
 
   const handleLogout = () => {
-    setToken(false);
-    navigate("/");
+    logout();
+    navigate("/"); // Redirigir al home
   };
 
   const handleLoginSuccess = () => {
-    setToken(true);
-    setShowLogin(false);
+    const fakeToken = "sample_token_123"; // Token simulado
+    login(fakeToken); // Aquí usas el método login con un token simulado
+    setShowLogin(false); // Cerramos el modal de login
   };
 
-  // Función para obtener la cantidad total de artículos en el carrito
-  const getTotalItems = () => {
-    return cart.reduce((acc, item) => acc + item.quantity, 0);
-  };
+  const getTotalItems = () => cart.reduce((acc, item) => acc + item.quantity, 0);
+
+  // Redirigir a Home si el usuario está autenticado al intentar acceder a Login/Registro
+  if (token) {
+    if (showLogin || showRegister) {
+      navigate("/"); // Redirige a Home si el usuario ya está logueado
+    }
+  }
 
   return (
     <>
@@ -46,7 +55,6 @@ const Navbar = ({ token, setToken }) => {
               </>
             )}
 
-            {/* 🛒 Botón de carrito con total */}
             <div className="position-relative">
               <button
                 className="btn btn-outline-success"
@@ -55,7 +63,6 @@ const Navbar = ({ token, setToken }) => {
                 🛒 ({getTotalItems()}) ${total.toLocaleString()}
               </button>
 
-              {/* 🔽 Mini resumen del carrito */}
               {showCartDetails && cart.length > 0 && (
                 <div
                   className="card position-absolute end-0 mt-2 p-3 shadow bg-white"
@@ -87,7 +94,6 @@ const Navbar = ({ token, setToken }) => {
         </div>
       </nav>
 
-      {/* Formularios modales */}
       <Register show={showRegister} handleClose={() => setShowRegister(false)} />
       <Login show={showLogin} handleClose={handleLoginSuccess} />
     </>

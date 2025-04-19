@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./pages/Navbar";
 import Home from "./pages/Home";
@@ -9,29 +9,54 @@ import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import Pizza from "./pages/Pizza";
 
-// 👉 Importar el CartProvider
-import { CartProvider } from "./context/CartContext"; // Asegúrate de que la ruta sea correcta
+// 👉 Importar los contextos
+import { CartProvider } from "./context/CartContext";
+import { UserProvider } from "./context/UserContext";
+
+// 👉 Importar las rutas protegidas y públicas
+import ProtectedRoute from "./routes/ProtectedRoute";
+import PublicRoute from "./routes/PublicRoute";
 
 const App = () => {
-  const [token, setToken] = useState(false);
-
   return (
-    <CartProvider> {/* ✅ CartProvider debe envolver TODO */}
-      <Router>
-        <div>
-          <Navbar token={token} setToken={setToken} />
+    <UserProvider>
+      <CartProvider>
+        <Router>
+          <Navbar />
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/login" element={<Login />} />
+
+            <Route
+              path="/register"
+              element={
+                <PublicRoute>
+                  <Register />
+                </PublicRoute>
+              }
+            />
+            <Route
+              path="/login"
+              element={
+                <PublicRoute>
+                  <Login />
+                </PublicRoute>
+              }
+            />
             <Route path="/cart" element={<Cart />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/Pizza/p001" element={<Home />} />
-            <Route path="/404" element={<NotFound />} />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/pizza/:id" element={<Pizza />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
-        </div>
-      </Router>
-    </CartProvider>
+        </Router>
+      </CartProvider>
+    </UserProvider>
   );
 };
 

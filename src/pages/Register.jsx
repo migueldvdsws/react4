@@ -1,9 +1,18 @@
-// components/Register.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom'; // Para redirigir
 import { Modal, Button, Form, Alert } from 'react-bootstrap';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import { useUser } from '../context/UserContext'; // Obtener el contexto de usuario
 
 const Register = ({ show, handleClose }) => {
+  const navigate = useNavigate();
+  const { token, setToken } = useUser();
+
+  useEffect(() => {
+    if (token) {
+      navigate('/'); // Si ya está registrado (token presente), redirige al home
+    }
+  }, [token, navigate]);
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -15,19 +24,27 @@ const Register = ({ show, handleClose }) => {
     setError('');
     setSuccess('');
 
+    // Validaciones
     if (!email || !password || !confirmPassword) {
       setError('Todos los campos son obligatorios.');
       return;
     }
+
     if (password.length < 6) {
       setError('La contraseña debe tener al menos 6 caracteres.');
       return;
     }
+
     if (password !== confirmPassword) {
       setError('Las contraseñas no coinciden.');
       return;
     }
+
     setSuccess('¡Registro exitoso!');
+    setToken('fake_token'); // Simulación de token
+
+    handleClose();
+    navigate('/'); // Redirigir al home después del registro exitoso
   };
 
   return (
@@ -39,7 +56,7 @@ const Register = ({ show, handleClose }) => {
         {error && <Alert variant="danger">{error}</Alert>}
         {success && <Alert variant="success">{success}</Alert>}
         <Form onSubmit={handleSubmit}>
-          <Form.Group className="mb-3">
+          <Form.Group>
             <Form.Label>Email</Form.Label>
             <Form.Control 
               type="email" 
@@ -48,7 +65,7 @@ const Register = ({ show, handleClose }) => {
               required
             />
           </Form.Group>
-          <Form.Group className="mb-3">
+          <Form.Group>
             <Form.Label>Contraseña</Form.Label>
             <Form.Control 
               type="password" 
@@ -57,7 +74,7 @@ const Register = ({ show, handleClose }) => {
               required
             />
           </Form.Group>
-          <Form.Group className="mb-3">
+          <Form.Group>
             <Form.Label>Confirmar Contraseña</Form.Label>
             <Form.Control 
               type="password" 
@@ -66,7 +83,7 @@ const Register = ({ show, handleClose }) => {
               required
             />
           </Form.Group>
-          <Button variant="primary" type="submit">Registrarse</Button>
+          <Button type="submit">Registrarse</Button>
         </Form>
       </Modal.Body>
     </Modal>

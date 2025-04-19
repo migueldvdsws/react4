@@ -1,6 +1,7 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
-const CardPizza = ({ name, price, ingredients, img }) => {
+const CardPizza = ({ id, name, price, ingredients, img }) => {
   return (
     <div className="card" style={{ width: '18rem', position: 'relative' }}>
       <img src={img} className="card-img-top" alt={name} />
@@ -15,9 +16,8 @@ const CardPizza = ({ name, price, ingredients, img }) => {
         </ul>
       </div>
 
-      {/* Botones en la parte inferior */}
       <div className="card-footer d-flex justify-content-between">
-        <button className="btn btn-secondary">Ver más</button>
+        <Link to={`/pizza/${id}`} className="btn btn-secondary">Ver más</Link>
         <button className="btn btn-primary">Agregar</button>
       </div>
     </div>

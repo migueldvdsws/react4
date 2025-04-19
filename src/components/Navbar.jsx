@@ -1,35 +1,40 @@
-// src/components/Navbar.jsx
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import "bootstrap/dist/css/bootstrap.min.css";
+import { useCart } from "../context/CartContext";
+import { useUser } from "../context/UserContext"; // 👈 importar el hook
 import Register from "./Register";
 import Login from "./Login";
+import "bootstrap/dist/css/bootstrap.min.css";
 
-const Navbar = ({ token, setToken }) => {
-  const total = 0;
+const Navbar = () => {
+  const { cart, total } = useCart();
   const navigate = useNavigate();
+
+  const { token, login, logout } = useUser(); // 👈 usar login en lugar de setToken
 
   const [showRegister, setShowRegister] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
+  
+  const [showCartDetails, setShowCartDetails] = useState(false);
 
   const handleLogout = () => {
-    setToken(false);  // Cambiar el estado de token a false
-    navigate("/");  // Redirigir a la página de inicio
+    logout();
+    navigate("/"); // Redirigir al home
+  };
+  
+  const handleLoginSuccess = () => {
+    const fakeToken = "sample_token_123"; // Token simulado
+    login(fakeToken); // Aquí usas el método login con un token simulado
+    setShowLogin(false); // Cerramos el modal de login
   };
 
-  const handleLoginSuccess = () => {
-    setToken(true);        // 🔓 Marcar sesión iniciada
-    setShowLogin(false);   // Cerrar modal Login
-  };
+  const getTotalItems = () => cart.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
     <>
       <nav className="navbar navbar-expand-lg navbar-light bg-light px-3">
         <div className="container-fluid">
-          {/* Logo/Home */}
           <Link className="navbar-brand" to="/">🍕 Home</Link>
-
-          {/* Menú derecho */}
           <div className="d-flex align-items-center gap-2">
             {token ? (
               <>
@@ -43,21 +48,46 @@ const Navbar = ({ token, setToken }) => {
               </>
             )}
 
-            {/* Carrito */}
-            <button
-              className="btn btn-outline-success"
-              onClick={() => navigate("/cart")}
-            >
-              🛒 Total: ${total.toLocaleString()}
-            </button>
+            <div className="position-relative">
+              <button
+                className="btn btn-outline-success"
+                onClick={() => setShowCartDetails(!showCartDetails)}
+              >
+                🛒 ({getTotalItems()}) ${total.toLocaleString()}
+              </button>
+
+              {showCartDetails && cart.length > 0 && (
+                <div
+                  className="card position-absolute end-0 mt-2 p-3 shadow bg-white"
+                  style={{ minWidth: "300px", zIndex: 1000 }}
+                >
+                  <h6 className="mb-2">🧾 Resumen del carrito</h6>
+                  <ul className="list-unstyled mb-2">
+                    {cart.map((item) => (
+                      <li key={item.id}>
+                        <strong>{item.name}</strong> x{item.quantity} – ${item.price * item.quantity}
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="text-end">
+                    <button
+                      className="btn btn-sm btn-primary"
+                      onClick={() => {
+                        setShowCartDetails(false);
+                        navigate("/cart");
+                      }}
+                    >
+                      Ver carrito
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </nav>
 
-      {/* Modales */}
       <Register show={showRegister} handleClose={() => setShowRegister(false)} />
-      
-      {/* 🔐 Login simulado */}
       <Login show={showLogin} handleClose={handleLoginSuccess} />
     </>
   );

@@ -1,8 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom'; // Para redirigir al home
 import { Modal, Button, Form, Alert } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { useUser } from '../context/UserContext'; // Importar el contexto de usuario
 
 const Login = ({ show, handleClose }) => {
+  const navigate = useNavigate();
+  const { token, login } = useUser(); // Obtener la función login y el token del contexto
+
+  useEffect(() => {
+    if (token) {
+      navigate('/'); // Si el token está presente, redirige al home
+    }
+  }, [token, navigate]);
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -13,17 +24,24 @@ const Login = ({ show, handleClose }) => {
     setError('');
     setSuccess('');
 
+    // Validaciones
     if (!email || !password) {
       setError('Todos los campos son obligatorios.');
       return;
     }
+
     if (password.length < 6) {
       setError('La contraseña debe tener al menos 6 caracteres.');
       return;
     }
-    
-    // Simulación de éxito (lógica de autenticación real iría aquí)
+
+    // Simulación de autenticación exitosa
     setSuccess('¡Inicio de sesión exitoso!');
+    login("fake_token"); // Establecer un token falso en el contexto (esto debe ser el token real)
+
+    // Aquí iría la lógica de autenticación (ej. API, validación en el servidor)
+    // Si la autenticación es exitosa, puedes cerrar el modal y redirigir:
+    handleClose(); // Cerrar el modal después del login exitoso
   };
 
   return (
